@@ -7,3 +7,4 @@
 
 students in class group:
 RyanEakin
+Josue Zenif Baez Gomez (HELLO)
