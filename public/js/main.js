@@ -10,7 +10,7 @@ const hookRegionSorter = () => {
             } else {
                 url.searchParams.delete('region');
             }
-            
+
             window.location.href = url.toString();
         });
     }
@@ -28,7 +28,7 @@ const hookSeasonSorter = () => {
             } else {
                 url.searchParams.delete('season');
             }
-            
+
             window.location.href = url.toString();
         });
     }
@@ -64,9 +64,9 @@ const hookTrainsCatalog = async () => {
             card.querySelector('[data-field="name"]').textContent = train.name;
             card.querySelector('[data-field="operator"]').textContent = train.operator;
             card.querySelector('[data-field="type"]').textContent = train.type;
-            card.querySelector('[data-field="speed"]').textContent = `${train.maxSpeedKmh} km/h`;
+            card.querySelector('[data-field="speed"]').textContent = `${train.topSpeedKmh} km/h`;
             card.querySelector('[data-field="seats"]').textContent = `${train.capacity} seats`;
-            card.querySelector('[data-field="power"]').textContent = train.powerSource;
+            card.querySelector('[data-field="power"]').textContent = train.power;
             card.querySelector('[data-field="description"]').textContent = train.description;
             card.querySelector('[data-field="best-for"]').textContent = train.bestFor;
 

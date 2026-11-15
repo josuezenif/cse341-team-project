@@ -1,24 +1,40 @@
-import { MongoClient } from 'mongodb';
+// import { MongoClient } from 'mongodb';
 
-let database;
-let client;
+// let database;
+// let client;
 
-const connectToDb = async (options = {}) => {
-  if (database) {
-    return database;
+// const connectToDb = async (options = {}) => {
+//   if (database) {
+//     return database;
+//   }
+
+//   const connectionString = options.connectionString || process.env.MONGODB_URI;
+//   const databaseName = options.databaseName || process.env.MONGODB_DB_NAME || 'practice';
+
+//   if (!connectionString) {
+//     throw new Error('MONGODB_URI is required.');
+//   }
+
+//   client = new MongoClient(connectionString);
+//   await client.connect();
+//   database = client.db(databaseName);
+//   return database;
+// };
+
+import mongoose from 'mongoose';
+
+const connectToDb = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB_NAME || 'practice'
+    });
+
+    console.log('MongoDB connected successfully!');
+
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
   }
-
-  const connectionString = options.connectionString || process.env.MONGODB_URI;
-  const databaseName = options.databaseName || process.env.MONGODB_DB_NAME || 'practice';
-
-  if (!connectionString) {
-    throw new Error('MONGODB_URI is required.');
-  }
-
-  client = new MongoClient(connectionString);
-  await client.connect();
-  database = client.db(databaseName);
-  return database;
 };
 
 const getDb = () => {
