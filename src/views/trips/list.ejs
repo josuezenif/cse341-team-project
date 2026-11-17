@@ -23,32 +23,33 @@
         </select>
     </div>
 
-    <div class="routes-grid">
-        <template class="trips-card-template">
-            <article class="trips-card">
+    <section id="trips-list" class="routes-grid"></section>
 
-                <div class="trip-image">
-                    <img src="" alt="" id="tripUrl">
-                </div>
+    <template class="trips-card-template">
+        <article class="trips-card">
 
-                <div class="name">
-                    <h2 id="tripName"></h2>
-                </div>
+            <div class="trip-image">
+                <img src="" alt="" class="imageUrl">
+            </div>
 
-                <div class="desc">
-                    <p id="trip-description"></p>
-                </div>
+            <div class="name">
+                <h2 class="tripName"></h2>
+            </div>
 
-                <div class="other-details">
-                    <span id="duration"><span> hours</span></span>
-                    <span id="bestSeason"></span>
-                </div>
+            <div class="desc">
+                <p class="trip-description"></p>
+            </div>
 
-                <div class="view-details">
-                    <a href="" id="specefic-trip"></a>
-                </div>
-            </article>
-        </template>
-    </div>
+            <div class="other-details">
+                <p class="duration"></p>
+                <p class="distance"></p>
+                <p class="bestSeason"></p>
+            </div>
+
+            <div class="view-details">
+                <a href="" class="specific-trip">View Details</a>
+            </div>
+        </article>
+    </template>
 
     <%- include('../partials/footer') %>

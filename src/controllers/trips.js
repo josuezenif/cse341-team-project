@@ -1,5 +1,5 @@
 import { getAllTrips, getTripById } from "../models/trips.js";
-import { getDb as db } from "../db/connect.js";
+import { getDb } from "../db/connect.js";
 
 const getAllTripsHandler = async (req, res) => {
     try {
@@ -32,7 +32,7 @@ const getTripByIdHandler = async (req, res) => {
 async function getTripDetails(req, res) {
     const { tripId } = req.params._id;
     const details = await getTripById(tripId);
-    details.schedules = await db.collection('schedules').find({ tripId }).toArray();
+    details.schedules = await getDb().collection('schedules').find({ tripId }).toArray();
 
     res.render('trips/details', {
         title: 'Trip Details',
@@ -41,8 +41,15 @@ async function getTripDetails(req, res) {
 };
 
 async function getTripsList(req, res) {
+    const db = await getDb();
+    const [regions, seasons] = await Promise.all([
+        db.collection('trips').distinct('region'),
+        db.collection('trips').distinct('bestSeason')
+    ]);
     res.render('trips/list', {
-        title: 'Scenic Train Trips'
+        title: 'Scenic Train Trips',
+        regions,
+        seasons
     });
 };
 

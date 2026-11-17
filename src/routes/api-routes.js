@@ -55,7 +55,7 @@ const router = express.Router();
  *       500:
  *         description: Internal service error while retrieving trips
  */
-router.get('/api/trips', getAllTripsHandler);
+router.get('/trips', getAllTripsHandler);
 
 /**
  * @swagger
@@ -82,6 +82,6 @@ router.get('/api/trips', getAllTripsHandler);
  *       500:
  *         description: Internal service error while retrieving the trip
  */
-router.get('/api/trips/:_id', getTripByIdHandler);
+router.get('/trips/:_id', getTripByIdHandler);
 
-export { router as apiRouter };
+export { router };

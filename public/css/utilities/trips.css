@@ -2,14 +2,14 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-    
+
     .route-card {
         background: var(--clr-surface);
         border: 1px solid;
         border-radius: var(--radius-lg);
         padding: var(--space-lg);
         box-shadow: var(--shadow-sm);
-        
+
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto auto auto auto;
@@ -21,17 +21,18 @@
             "highlights"
             "actions";
         gap: var(--space-md);
-        
+
         /* Regional Color Variations */
         &.central {
             background-color: var(--clr-region-central);
             border-color: var(--clr-region-central-border);
-            
+
             .route-region {
                 color: var(--clr-region-central-text);
             }
 
-            .highlight-tag, .season-badge {
+            .highlight-tag,
+            .season-badge {
                 border-color: var(--clr-region-central-border);
             }
 
@@ -41,16 +42,17 @@
                 }
             }
         }
-        
+
         &.northern {
             background-color: var(--clr-region-northern);
             border-color: var(--clr-region-northern-border);
-            
+
             .route-region {
                 color: var(--clr-region-northern-text);
             }
 
-            .highlight-tag, .season-badge {
+            .highlight-tag,
+            .season-badge {
                 border-color: var(--clr-region-northern-border);
             }
 
@@ -60,16 +62,17 @@
                 }
             }
         }
-        
+
         &.kansai {
             background-color: var(--clr-region-kansai);
             border-color: var(--clr-region-kansai-border);
-            
+
             .route-region {
                 color: var(--clr-region-kansai-text);
             }
 
-            .highlight-tag, .season-badge {
+            .highlight-tag,
+            .season-badge {
                 border-color: var(--clr-region-kansai-border);
             }
 
@@ -79,16 +82,17 @@
                 }
             }
         }
-        
+
         &.hokkaido {
             background-color: var(--clr-region-hokkaido);
             border-color: var(--clr-region-hokkaido-border);
-            
+
             .route-region {
                 color: var(--clr-region-hokkaido-text);
             }
 
-            .highlight-tag, .season-badge {
+            .highlight-tag,
+            .season-badge {
                 border-color: var(--clr-region-hokkaido-border);
             }
 
@@ -98,99 +102,99 @@
                 }
             }
         }
-        
+
         .route-header {
             grid-area: header;
             display: flex;
             flex-direction: column;
             gap: var(--space-xs);
-            
+
             h2.route-name {
                 font-size: var(--font-size-xl);
                 line-height: var(--line-height-lg);
                 color: var(--clr-text-primary);
                 margin: 0;
             }
-            
+
             .route-region {
                 line-height: var(--line-height-sm);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
         }
-        
+
         .station-info {
             grid-area: station;
             display: flex;
             align-items: center;
             gap: var(--space-md);
             flex-wrap: wrap;
-            
+
             .station {
                 display: flex;
                 align-items: center;
                 gap: var(--space-sm);
-                
+
                 .station-type {
                     color: var(--clr-primary);
                 }
-                
+
                 .station-name {
                     color: var(--clr-text-primary);
                     text-transform: capitalize;
                 }
             }
-            
+
             .route-arrow {
                 color: var(--clr-text-muted);
                 font-size: var(--font-size-xl);
                 line-height: var(--line-height-lg);
             }
         }
-        
+
         .route-details {
             grid-area: details;
             display: flex;
             gap: var(--space-md);
             flex-wrap: wrap;
-            
+
             .detail-item {
                 display: flex;
                 align-items: center;
                 gap: var(--space-xs);
-                
+
                 .detail-icon {
                     font-size: var(--font-size-lg);
                 }
-                
+
                 span {
                     .detail-label {
                         color: var(--clr-text-secondary);
                     }
                 }
-                
+
                 .season-badge {
                     border-radius: var(--radius-md);
                     border: 1px solid;
                     display: inline-block;
                     padding: var(--space-xs) var(--space-md);
                     text-transform: capitalize;
-                    
+
                     &.season-spring {
                         background-color: var(--clr-spring);
                         color: var(--clr-spring-text);
                     }
-                    
+
                     &.season-summer {
                         background-color: var(--clr-summer);
                         color: var(--clr-summer-text);
                     }
-                    
+
                     &.season-autumn {
                         background-color: var(--clr-autumn);
                         color: var(--clr-autumn-text);
                     }
-                    
+
                     &.season-winter {
                         background-color: var(--clr-winter);
                         color: var(--clr-winter-text);
@@ -198,20 +202,20 @@
                 }
             }
         }
-        
+
         .route-description {
             grid-area: description;
             color: var(--clr-text-secondary);
         }
-        
+
         .highlights {
             grid-area: highlights;
-            
+
             .highlights-list {
                 display: flex;
                 gap: var(--space-sm);
                 flex-wrap: wrap;
-                
+
                 .highlight-tag {
                     background-color: var(--clr-primary-pale);
                     border-width: 1px;
@@ -225,12 +229,12 @@
                 }
             }
         }
-        
+
         .route-actions {
             grid-area: actions;
             display: flex;
             gap: var(--space-md);
-            
+
             a.view-details-btn {
                 display: inline-block;
                 padding: var(--space-sm) var(--space-lg);
@@ -242,7 +246,7 @@
                 text-decoration: none;
                 transition: background-color 0.2s ease, box-shadow 0.2s ease;
                 text-align: center;
-                
+
                 &:hover {
                     background-color: var(--clr-accent);
                     box-shadow: var(--shadow-md);
@@ -252,7 +256,7 @@
     }
 
     /* Responsive Layout - Tablet */
-    @media (min-width: 768px) {   
+    @media (min-width: 768px) {
         .route-card {
             padding: var(--space-xl);
             grid-template-columns: 1fr 1fr;
@@ -263,7 +267,7 @@
                 "description description"
                 "highlights highlights"
                 "actions actions";
-            
+
             .station-info {
                 flex-wrap: nowrap;
             }
@@ -273,7 +277,7 @@
     /* Responsive Layout - Desktop */
     @media (min-width: 1024px) {
         gap: var(--space-xl);
-        
+
         .route-card {
             grid-template-columns: 1fr 1fr auto;
             grid-template-rows: auto auto auto auto;
@@ -285,14 +289,14 @@
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            
+
             .route-details {
                 flex-direction: column;
                 justify-content: center;
                 align-items: stretch;
                 gap: var(--space-md);
                 height: 100%;
-                
+
                 .detail-item {
                     align-items: center;
                     justify-content: flex-end;
@@ -300,5 +304,157 @@
                 }
             }
         }
+    }
+}
+
+/* =========================
+   TRIPS CATALOG
+========================= */
+
+.routes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 40px 0px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* =========================
+   TRIP CARD
+========================= */
+
+.trips-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.trips-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.trip-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.trip-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.trips-card:hover .trip-image img {
+    transform: scale(1.06);
+}
+
+/* =========================
+   TRIP NAME
+========================= */
+
+.name {
+    padding: 20px 20px 5px;
+}
+
+.name h2 {
+    font-size: 2.2rem;
+    color: #1d3557;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* =========================
+   DESCRIPTION
+========================= */
+
+.desc {
+    padding: 0 20px;
+    flex-grow: 1;
+}
+
+.desc p {
+    color: #64748b;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    margin: 10px 0 20px;
+}
+
+/* =========================
+   OTHER DETAILS
+========================= */
+
+.other-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 15px 0px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.other-details p {
+    color: #334155;
+    font-size: 1.3rem;
+    margin: 0;
+    padding: 7px 10px;
+    background-color: #e8eef5;
+    border-radius: 6px;
+}
+
+/* =========================
+   VIEW DETAILS BUTTON
+========================= */
+
+.view-details {
+    padding: 15px 20px 20px;
+}
+
+.view-details a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    background-color: #1d3557;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.view-details a:hover {
+    background-color: #457b9d;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 600px) {
+    .routes-grid {
+        grid-template-columns: 1fr;
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    .trip-image {
+        height: 200px;
+    }
+
+    .name h2 {
+        font-size: 1.25rem;
     }
 }

@@ -4,9 +4,9 @@ import { getTripDetails, getTripsList } from '../controllers/trips.js';
 const router = express.Router();
 
 // Trip page
-router.get('/trips/:_id', getTripDetails);
+router.get('/:_id', getTripDetails);
 
 // Trips list (all trips listed)
-router.get('/trips', getTripsList);
+router.get('/', getTripsList);
 
-export { router as ejsRouter };
+export { router };
