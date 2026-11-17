@@ -2,6 +2,8 @@ import railTripsRouter from './trips.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { Router } from 'express';
 import { homePage, aboutPage, testErrorPage } from './index.js';
+import { router as apiRouter } from './api-routes.js';
+import { router as ejsRouter } from './ejs.routes.js';
 
 const router = Router();
 
@@ -17,8 +19,11 @@ router.get('/trains', trainsPage);
 // Trains API
 router.get('/api/trains', trainsApi);
 
-// Rail trips
-router.use('/trips', railTripsRouter);
+// Trips router API
+router.use('/api', apiRouter);
+
+// Trips route EJS
+router.use('/trips', ejsRouter);
 
 // Test 500 error page
 router.get('/500', testErrorPage);

@@ -10,7 +10,7 @@ const hookRegionSorter = () => {
             } else {
                 url.searchParams.delete('region');
             }
-            
+
             window.location.href = url.toString();
         });
     }
@@ -28,7 +28,7 @@ const hookSeasonSorter = () => {
             } else {
                 url.searchParams.delete('season');
             }
-            
+
             window.location.href = url.toString();
         });
     }
@@ -64,9 +64,9 @@ const hookTrainsCatalog = async () => {
             card.querySelector('[data-field="name"]').textContent = train.name;
             card.querySelector('[data-field="operator"]').textContent = train.operator;
             card.querySelector('[data-field="type"]').textContent = train.type;
-            card.querySelector('[data-field="speed"]').textContent = `${train.maxSpeedKmh} km/h`;
+            card.querySelector('[data-field="speed"]').textContent = `${train.topSpeedKmh} km/h`;
             card.querySelector('[data-field="seats"]').textContent = `${train.capacity} seats`;
-            card.querySelector('[data-field="power"]').textContent = train.powerSource;
+            card.querySelector('[data-field="power"]').textContent = train.power;
             card.querySelector('[data-field="description"]').textContent = train.description;
             card.querySelector('[data-field="best-for"]').textContent = train.bestFor;
 
@@ -88,8 +88,43 @@ const hookTrainsCatalog = async () => {
     }
 };
 
+const hookTripsCatalog = async () => {
+    const tripsList = document.getElementById('trips-list');
+    const template = document.querySelector('.trips-card-template');
+    const fragment = document.createDocumentFragment();
+
+    try {
+        const response = await fetch('/api/trips');
+        if (!response.ok) {
+            throw new Error(`Failed to retrieve trips from API!: ${response.status}`);
+        }
+        const trips = await response.json();
+
+        trips.forEach(trip => {
+            const tripCard = template.content.cloneNode(true);
+            tripCard.querySelector('.imageUrl').setAttribute('src', trip.imageUrl);
+            tripCard.querySelector('.imageUrl').setAttribute('alt', trip.description);
+            tripCard.querySelector('.tripName').textContent = trip.name;
+            tripCard.querySelector('.trip-description').textContent = trip.description;
+            tripCard.querySelector('.duration').textContent = `${trip.durationHours} hours`;
+            tripCard.querySelector('.distance').textContent = `${trip.distanceKm} km`;
+            tripCard.querySelector('.bestSeason').textContent = `Best season: ${trip.bestSeason}`;
+            tripCard.querySelector('.specific-trip').setAttribute('href', `/trips?id=${trip.id}`);
+
+            fragment.append(tripCard);
+        });
+
+        tripsList.replaceChildren(fragment);
+    }
+
+    catch (error) {
+        console.error('Unable to retrieve trips api!', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     hookRegionSorter();
     hookSeasonSorter();
     hookTrainsCatalog();
+    hookTripsCatalog();
 });

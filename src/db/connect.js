@@ -21,6 +21,22 @@ const connectToDb = async (options = {}) => {
   return database;
 };
 
+import mongoose from 'mongoose';
+
+const connectToMongoose = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: process.env.MONGODB_DB_NAME || 'practice'
+    });
+
+    console.log('MongoDB connected successfully!');
+
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+};
+
 const getDb = () => {
   if (!database) {
     throw new Error('Database not initialized. Call connectToDb first.');
@@ -36,4 +52,4 @@ const closeDb = async () => {
   }
 };
 
-export { closeDb, connectToDb, getDb };
+export { closeDb, connectToMongoose, connectToDb, getDb };
