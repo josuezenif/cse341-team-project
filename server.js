@@ -1,14 +1,13 @@
 import app from './app.js';
 import { connectToDb, connectToMongoose } from './src/db/connect.js';
+import { migrateBookings } from './src/db/initialize.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB before accepting requests.
-await connectToDb();
-
-// Connect to Mongoose
-await connectToMongoose();
+// Connect and migrate stored bookings before accepting requests.
+const db = await connectToDb();
+await migrateBookings(db);
 
 // Start the live-reload WebSocket server in development mode.
 if (NODE_ENV.includes('dev')) {
