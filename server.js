@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const db = await connectToDb();
 await migrateBookings(db);
 
-await connectToMongoose();
+await connectToMongoose(); // Calling mongoose (without it app crashed and doesn't work)
 
 // Start the live-reload WebSocket server in development mode.
 if (NODE_ENV.includes('dev')) {
