@@ -64,9 +64,9 @@ const hookTrainsCatalog = async () => {
             card.querySelector('[data-field="name"]').textContent = train.name;
             card.querySelector('[data-field="operator"]').textContent = train.operator;
             card.querySelector('[data-field="type"]').textContent = train.type;
-            card.querySelector('[data-field="speed"]').textContent = `${train.topSpeedKmh} km/h`;
+            card.querySelector('[data-field="speed"]').textContent = `${train.maxSpeedKmh} km/h`;
             card.querySelector('[data-field="seats"]').textContent = `${train.capacity} seats`;
-            card.querySelector('[data-field="power"]').textContent = train.power;
+            card.querySelector('[data-field="power"]').textContent = train.powerSource;
             card.querySelector('[data-field="description"]').textContent = train.description;
             card.querySelector('[data-field="best-for"]').textContent = train.bestFor;
 
@@ -107,13 +107,13 @@ const hookTripsCatalog = async () => {
         trips.forEach(trip => {
             const tripCard = template.content.cloneNode(true);
             tripCard.querySelector('.imageUrl').setAttribute('src', trip.imageUrl);
-            tripCard.querySelector('.imageUrl').setAttribute('alt', trip.description);
+            tripCard.querySelector('.imageUrl').setAttribute('alt', trip.name);
             tripCard.querySelector('.tripName').textContent = trip.name;
             tripCard.querySelector('.trip-description').textContent = trip.description;
-            tripCard.querySelector('.duration').textContent = `${trip.durationHours} hours`;
-            tripCard.querySelector('.distance').textContent = `${trip.distanceKm} km`;
+            tripCard.querySelector('.duration').textContent = `${trip.duration}`;
+            tripCard.querySelector('.distance').textContent = `${trip.distance} km`;
             tripCard.querySelector('.bestSeason').textContent = `Best season: ${trip.bestSeason}`;
-            tripCard.querySelector('.specific-trip').setAttribute('href', `/trips?id=${trip.id}`);
+            tripCard.querySelector('.specific-trip').setAttribute('href', `/trips/${trip.id}`);
 
             fragment.append(tripCard);
         });
@@ -219,6 +219,8 @@ const hookBookingsCatalog = async () => {
         const fragment = document.createDocumentFragment();
         bookings.forEach((booking) => {
             const card = templateEl.content.cloneNode(true);
+            card.querySelector('[data-field="link"]').href =
+                `/bookings/${encodeURIComponent(booking.id)}`;
             card.querySelector('[data-field="id"]').textContent = booking.id;
             card.querySelector('[data-field="trip"]').textContent = booking.tripId;
             card.querySelector('[data-field="schedule"]').textContent = booking.scheduleId;

@@ -6,11 +6,26 @@ import swaggerUi from 'swagger-ui-express';
 import pkg from './package.json' with { type: 'json' };
 import globalMiddleware from './src/middleware/global.js';
 import routes from './src/routes/router.js';
+import session from 'express-session';
+import { loadSessionUser } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = Path.dirname(__filename);
 
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
 const app = express();
+
+// Set up session management
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: { maxAge: 60 * 60 * 1000 } // Session expires after 1 hour of inactivity
+}));
+
+app.use(loadSessionUser);
 
 // Add version info to res.locals for access in templates.
 app.use((req, res, next) => {

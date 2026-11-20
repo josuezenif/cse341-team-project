@@ -1,6 +1,7 @@
 import express from "express";
 import { getAllTripsHandler, getTripByIdHandler } from "../controllers/trips.js";
 import { getAllStations, getStationById } from "../controllers/stations.js";
+import { requireApiLogin, requireApiRole } from "../middleware/auth.js";
 import {
   createBookingHandler,
   getAllBookings,
