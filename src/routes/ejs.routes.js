@@ -2,8 +2,17 @@ import express from 'express';
 import { getTripDetails, getTripsList } from '../controllers/trips.js';
 import { renderRegisterPage, renderLoginPage, renderAdminDashboard, register, login, logout } from '../controllers/users.js';
 import { requirePageLogin, requirePageRole } from '../middleware/auth.js';
+import {
+    bookingFormPage,
+    bookingPage,
+    processBookingRequest
+} from '../controllers/bookings.js';
 
 const router = express.Router();
+
+router.get('/booking/:scheduleId', bookingFormPage);
+router.post('/book', processBookingRequest);
+router.get('/confirmation/:bookingId', bookingPage);
 
 // Trip page
 router.get('/trips/:id', getTripDetails);
