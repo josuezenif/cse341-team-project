@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<section class="trains-hero">
+    <h1>New Booking</h1>
+    <p>Select a trip schedule to continue to the passenger and ticket form.</p>
+</section>
+
+<section class="trains-catalog">
+    <% if (schedules.length === 0) { %>
+        <p class="trains-state">No schedules are currently available for booking.</p>
+        <a class="btn btn-primary" href="/trips">Browse trips</a>
+    <% } else { %>
+        <form action="/bookings/new" method="GET" class="schedule-selection">
+            <label for="scheduleId">Available schedule</label>
+            <select id="scheduleId" name="scheduleId" required>
+                <option value="" selected disabled>Choose a trip schedule</option>
+                <% schedules.forEach((schedule) => { %>
+                    <option value="<%= schedule.id %>">
+                        <%= schedule.tripName %> - <%= schedule.departureTime %> to <%= schedule.arrivalTime %>
+                    </option>
+                <% }); %>
+            </select>
+            <button type="submit" class="btn btn-primary">Continue booking</button>
+        </form>
+    <% } %>
+</section>
+
+<%- include('../partials/footer') %>
