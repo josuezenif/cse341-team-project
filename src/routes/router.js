@@ -36,7 +36,7 @@ router.get('/api/trains', trainsApi);
 router.use('/api', apiRouter);
 
 // Trips route EJS
-router.use('/trips', ejsRouter);
+router.use(ejsRouter);
 
 // Test 500 error page
 router.get('/500', testErrorPage);
