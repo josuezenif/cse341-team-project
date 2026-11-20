@@ -35,6 +35,11 @@
         gap: var(--space-lg);
     }
 
+    .booking-card-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
     .train-card {
         border-radius: var(--radius-lg);
         border: 1px solid #b7c4e8;

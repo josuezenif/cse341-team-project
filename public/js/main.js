@@ -157,6 +157,8 @@ const hookBookingsCatalog = async () => {
         const fragment = document.createDocumentFragment();
         bookings.forEach((booking) => {
             const card = templateEl.content.cloneNode(true);
+            card.querySelector('[data-field="link"]').href =
+                `/bookings/${encodeURIComponent(booking.id)}`;
             card.querySelector('[data-field="id"]').textContent = booking.id;
             card.querySelector('[data-field="trip"]').textContent = booking.tripId;
             card.querySelector('[data-field="schedule"]').textContent = booking.scheduleId;
