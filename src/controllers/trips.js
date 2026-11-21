@@ -30,7 +30,7 @@ const getTripByIdHandler = async (req, res) => {
 }
 
 async function getTripDetails(req, res) {
-    const { tripId } = req.params._id;
+    const { tripId } = req.params.id;
     const details = await getTripById(tripId);
     details.schedules = await getDb().collection('schedules').find({ tripId }).toArray();
 

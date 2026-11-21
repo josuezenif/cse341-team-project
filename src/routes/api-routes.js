@@ -6,8 +6,10 @@ import {
   getAllBookings,
   getBookingByIdHandler
 } from "../controllers/bookings.js";
+import { getSchedulesForTrip, getSchedulesForTripAndMonth } from "../controllers/schedules.js";
 
 const router = express.Router();
+
 
 /**
  * @swagger
@@ -101,6 +103,38 @@ const router = express.Router();
  *         createdAt:
  *           type: string
  *           format: date-time
+ *     Schedules:
+ *        type: object
+ *        required: id
+ *        properties:
+ *          id:
+ *            type: String
+ *            example: alpine-panorama
+ *            required: true
+ *          departureTime:
+ *            type: String
+ *            format: date-time
+ *            example: "08:30"
+ *            required: true
+ *          arrivalTime:
+ *            type: String
+ *            format: date-time
+ *            example: "13:00"
+ *            required: true
+ *          daysOfWeek:
+ *            type: array
+ *            items:
+ *              type: string
+ *            example:
+ *              - monday
+ *              - tuesday
+ *              - wednesday
+ *              - thursday
+ *              - friday
+ *          status: 
+ *            type: Boolean
+ *            example: true
+ *            required: true
  *     ApiError:
  *       type: object
  *       properties:
@@ -283,5 +317,82 @@ router.post('/bookings', createBookingHandler);
  *               $ref: '#/components/schemas/ApiError'
  */
 router.get('/bookings/:bookingId', getBookingByIdHandler);
+
+
+
+ /**
+ * @swagger
+ * /api/trips/{id}/schedules:
+ *   get:
+ *     summary: Get schedules by ID
+ *     tags: [Schedules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Thetrip reference
+ *         schema:
+ *           type: string
+ *     responses: 
+ *       200:
+ *         description: the requested schedules
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Schedules'
+ *       404:
+ *         description: Booking not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ *       500:
+ *         description: Internal service error while retrieving the booking
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+router.get('/api/trips/:id/schedules', getSchedulesForTrip);
+ 
+ /**
+ * @swagger
+ * /api/trips/{id}/schedules?month={month}:
+ *   get:
+ *     summary: Get schedules by ID
+ *     tags: [Schedules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The trip reference
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: month
+ *         type: string
+ *         description: The month number
+ *     responses: 
+ *       200:
+ *         description: the requested schedules by month
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Schedules'
+ *       404:
+ *         description: Booking not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ *       500:
+ *         description: Internal service error while retrieving the booking
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+router.get('/api/trips/:id/schedules', getSchedulesForTripAndMonth);
+
 
 export { router };
