@@ -44,6 +44,10 @@ const getDb = () => {
 };
 
 const closeDb = async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+
   if (client) {
     await client.close();
     client = undefined;

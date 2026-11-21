@@ -42,6 +42,32 @@ const tripsSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true
+        },
+        startStation: {
+            type: String,
+            trim: true
+        },
+        endStation: {
+            type: String,
+            trim: true
+        },
+        duration: {
+            type: String,
+            trim: true
+        },
+        distance: {
+            type: Number,
+            min: 0
+        },
+        highlights: {
+            type: [String]
+        },
+        operatingMonths: {
+            type: [{
+                type: Number,
+                min: 1,
+                max: 12
+            }]
         }
     },
     {
