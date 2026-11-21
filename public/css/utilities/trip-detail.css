@@ -156,35 +156,6 @@ article.route-detail {
                         font-weight: 500;
                         color: var(--clr-primary);
                     }
-
-                    .station-details-toggle {
-                        align-self: flex-start;
-                        padding: var(--space-xs) var(--space-sm);
-                        border: 1px solid var(--clr-border);
-                        border-radius: var(--radius-sm);
-                        background-color: var(--clr-surface);
-                        color: var(--clr-primary);
-                        cursor: pointer;
-                    }
-
-                    .station-details {
-                        font-size: var(--font-size-sm);
-                        color: var(--clr-text-secondary);
-
-                        dl {
-                            display: grid;
-                            grid-template-columns: auto 1fr;
-                            gap: var(--space-xs) var(--space-sm);
-                        }
-
-                        dt {
-                            font-weight: 600;
-                        }
-
-                        dd {
-                            margin: 0;
-                        }
-                    }
                 }
             }
         }

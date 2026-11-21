@@ -29,29 +29,15 @@ const getTripByIdHandler = async (req, res) => {
     }
 }
 
-async function getTripDetails(req, res, next) {
-    try {
-        const tripId = req.params._id;
-        const trip = await getTripById(tripId);
+async function getTripDetails(req, res) {
+    const { tripId } = req.params._id;
+    const details = await getTripById(tripId);
+    details.schedules = await getDb().collection('schedules').find({ tripId }).toArray();
 
-        if (!trip) {
-            return res.status(404).render('errors/404', {
-                title: 'Page Not Found',
-                error: 'Trip not found'
-            });
-        }
-
-        const details = typeof trip.toObject === 'function' ? trip.toObject() : trip;
-        details.schedules = await getDb().collection('schedules').find({ tripId }).toArray();
-
-        return res.render('trips/details', {
-            title: 'Trip Details',
-            details
-        });
-    } catch (error) {
-        console.error('Error rendering trip details:', error);
-        return next(error);
-    }
+    res.render('trips/details', {
+        title: 'Trip Details',
+        details
+    });
 };
 
 async function getTripsList(req, res) {
