@@ -31,7 +31,7 @@ const getTripByIdHandler = async (req, res) => {
 
 async function getTripDetails(req, res, next) {
     try {
-        const tripId = req.params._id;
+        const tripId = req.params.id;
         const trip = await getTripById(tripId);
 
         if (!trip) {

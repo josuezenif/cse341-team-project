@@ -184,6 +184,8 @@ const hookStationDetails = () => {
             }
         });
     });
+};
+
 const hookBookingsCatalog = async () => {
     const listEl = document.getElementById('bookings-list');
     const templateEl = document.getElementById('booking-card-template');
