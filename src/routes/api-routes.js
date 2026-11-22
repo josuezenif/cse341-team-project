@@ -108,16 +108,16 @@ const router = express.Router();
  *        required: id
  *        properties:
  *          id:
- *            type: String
+ *            type: string
  *            example: alpine-panorama
  *            required: true
  *          departureTime:
- *            type: String
+ *            type: string
  *            format: date-time
  *            example: "08:30"
  *            required: true
  *          arrivalTime:
- *            type: String
+ *            type: string
  *            format: date-time
  *            example: "13:00"
  *            required: true
@@ -132,7 +132,7 @@ const router = express.Router();
  *              - thursday
  *              - friday
  *          status: 
- *            type: Boolean
+ *            type: boolean
  *            example: true
  *            required: true
  *     ApiError:
@@ -353,7 +353,7 @@ router.get('/bookings/:bookingId', getBookingByIdHandler);
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-router.get('/api/trips/:id/schedules', getSchedulesForTrip);
+router.get('/trips/:id/schedules', getSchedulesForTrip);
  
  /**
  * @swagger
@@ -392,7 +392,7 @@ router.get('/api/trips/:id/schedules', getSchedulesForTrip);
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-router.get('/api/trips/:id/schedules', getSchedulesForTripAndMonth);
+router.get('/trips/:id/schedules', getSchedulesForTripAndMonth);
 
 
 export { router };

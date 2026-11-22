@@ -15,14 +15,14 @@ export const requireApiLogin = (req, res, next) => {
     if (!isLoggedIn(req)) {
         return res.status(401).json({ message: 'Authentication required! Log in to view' });
     }
-    next();
+    return next();
 };
 
 export const requirePageLogin = (req, res, next) => {
     if (!isLoggedIn(req)) {
         return res.redirect('/login');
     }
-    next();
+    return next();
 };
 
 export const requireApiRole = (role) => (req, res, next) => {
@@ -32,7 +32,7 @@ export const requireApiRole = (role) => (req, res, next) => {
     if (!hasRole(req, role)) {
         return res.status(403).json({ message: 'Forbidden' });
     }
-    next();
+    return next();
 };
 
 export const requirePageRole = (role) => (req, res, next) => {
@@ -47,5 +47,5 @@ export const requirePageRole = (role) => (req, res, next) => {
             title: "403 Forbidden"
         });
     }
-    next();
+    return next();
 };

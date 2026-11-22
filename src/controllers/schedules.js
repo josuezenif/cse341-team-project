@@ -3,10 +3,11 @@ import {getSchedulesByTripId} from "../models/schedules.js";
 
 const getSchedulesForTrip = async(req,res) =>{
     try {
-        const {tripId} = req.params.id;
-        const allSchedules = await getSchedulesByTripId();
+        const tripId = req.params.id;
 
-        console.log(allSchedules);
+        //console.log(tripId);
+
+        const allSchedules = await getSchedulesByTripId(tripId);
 
         if (!allSchedules) {
             return res.status(404).json({
