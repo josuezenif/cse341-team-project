@@ -204,13 +204,6 @@ router.get('/trips/:_id', getTripByIdHandler);
  *     responses:
  *       200:
  *         description: A list of stations
- * /api/bookings:
- *   get:
- *     summary: Get all bookings
- *     tags: [Bookings]
- *     responses:
- *       200:
- *         description: A list of bookings
  *         content:
  *           application/json:
  *             schema:
@@ -219,6 +212,10 @@ router.get('/trips/:_id', getTripByIdHandler);
  *                 $ref: '#/components/schemas/Station'
  *       500:
  *         description: Internal service error while retrieving stations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  */
 router.get('/stations', getAllStations);
 
@@ -233,19 +230,41 @@ router.get('/stations', getAllStations);
  *         name: id
  *         required: true
  *         description: The station's custom ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The requested station
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Station'
+ *       404:
+ *         description: Station not found
+ *       500:
+ *         description: Internal service error while retrieving the station
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+router.get('/stations/:id', getStationById);
+
+/**
+ * @swagger
+ * /api/bookings:
+ *   get:
+ *     summary: Get all bookings
+ *     tags: [Bookings]
+ *     responses:
+ *       200:
+ *         description: A list of bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
  *                 $ref: '#/components/schemas/Booking'
- *             example:
- *               - id: JR8K2M4P1
- *                 passengers:
- *                   - firstName: Alex
- *                     lastName: Smith
- *                     email: alex@example.com
- *                     phone: "+81 90-1234-5678"
- *                 scheduleId: "1"
- *                 tripId: alpine-panorama
- *                 ticketClass: standard
- *                 selectedDay: monday
- *                 createdAt: "2026-11-18T12:00:00.000Z"
  *       500:
  *         description: Internal service error while retrieving bookings
  *         content:
@@ -320,19 +339,7 @@ router.post('/bookings', createBookingHandler);
  *           type: string
  *     responses:
  *       200:
- *         description: The requested station
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Station'
- *       404:
- *         description: Station not found
- *       500:
- *         description: Internal service error while retrieving the station
- */
-router.get('/stations/:id', getStationById);
-
- /**         description: The requested booking
+ *         description: The requested booking
  *         content:
  *           application/json:
  *             schema:
