@@ -1,0 +1,78 @@
+<%- include('./partials/header') %>
+
+<section class="trains-hero">
+    <h1>Dashboard</h1>
+    <p>Welcome, <%= displayName %>!</p>
+    <p>
+        <a href="/bookings-admin">Booking admin</a>
+        <a href="/users-admin">User admin</a>
+    </p>
+</section>
+
+<section class="trains-catalog" aria-live="polite">
+    <h2>Your bookings</h2>
+    <p class="trains-state" id="my-bookings-status">Loading your bookings...</p>
+    <ul id="my-bookings-list"></ul>
+</section>
+
+<script>
+    const statusElement = document.getElementById('my-bookings-status');
+    const bookingsList = document.getElementById('my-bookings-list');
+    const showMessage = (message) => {
+        statusElement.textContent = message;
+        statusElement.hidden = false;
+    };
+
+    const addText = (parent, tagName, text) => {
+        const element = document.createElement(tagName);
+        element.textContent = text;
+        parent.appendChild(element);
+        return element;
+    };
+
+    fetch('/api/bookings/me')
+        .then((response) => {
+            if (response.status === 401) {
+                window.location.assign('/login?message=Your%20session%20has%20expired.%20Please%20sign%20in%20again.');
+                return null;
+            }
+            if (!response.ok) {
+                throw new Error('Booking request failed.');
+            }
+            return response.json();
+        })
+        .then((bookings) => {
+            if (bookings === null) {
+                return;
+            }
+            if (bookings.length === 0) {
+                showMessage('You have no bookings yet.');
+                return;
+            }
+
+            statusElement.hidden = true;
+            bookings.forEach((booking) => {
+                const item = document.createElement('li');
+                addText(item, 'h3', `Booking ${booking.id}`);
+                addText(item, 'p', `Trip: ${booking.tripId}`);
+                addText(item, 'p', `Schedule: ${booking.scheduleId}`);
+                addText(item, 'p', `Ticket class: ${booking.ticketClass}`);
+
+                const passengers = document.createElement('ul');
+                booking.passengers.forEach((passenger) => {
+                    addText(
+                        passengers,
+                        'li',
+                        `${passenger.firstName} ${passenger.lastName} (${passenger.email})`
+                    );
+                });
+                item.appendChild(passengers);
+                bookingsList.appendChild(item);
+            });
+        })
+        .catch(() => {
+            showMessage("We couldn't load your bookings. Please try again.");
+        });
+</script>
+
+<%- include('./partials/footer') %>

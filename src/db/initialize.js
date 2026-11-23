@@ -21,12 +21,14 @@ const migrateBookings = async (db) => {
 
   if (!collectionNames.has(legacyCollectionName)) {
     await db.collection('bookings').createIndex({ id: 1 }, { unique: true });
+    await db.collection('bookings').createIndex({ 'passengers.email': 1 });
     return;
   }
 
   if (!collectionNames.has('bookings')) {
     await db.collection(legacyCollectionName).rename('bookings');
     await db.collection('bookings').createIndex({ id: 1 }, { unique: true });
+    await db.collection('bookings').createIndex({ 'passengers.email': 1 });
     return;
   }
 
@@ -55,6 +57,7 @@ const migrateBookings = async (db) => {
 
   await db.collection(legacyCollectionName).drop();
   await bookings.createIndex({ id: 1 }, { unique: true });
+  await bookings.createIndex({ 'passengers.email': 1 });
 };
 
 const initializeDatabase = async (db) => {
@@ -78,6 +81,7 @@ const initializeDatabase = async (db) => {
 
   await db.collection('roles').insertMany(roles);
   await db.collection('bookings').createIndex({ id: 1 }, { unique: true });
+  await db.collection('bookings').createIndex({ 'passengers.email': 1 });
 };
 
 export { initializeDatabase, migrateBookings, starterCollections };

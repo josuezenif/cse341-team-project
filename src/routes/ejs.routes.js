@@ -1,7 +1,14 @@
 import express from 'express';
 import { getTripDetails, getTripsList } from '../controllers/trips.js';
-import { renderRegisterPage, renderLoginPage, renderAdminDashboard, register, login, logout } from '../controllers/users.js';
-import { requirePageLogin, requirePageRole } from '../middleware/auth.js';
+import {
+    renderRegisterPage,
+    renderLoginPage,
+    renderAdminDashboard,
+    register,
+    login,
+    logout
+} from '../controllers/users.js';
+import { noStore, requirePageRole } from '../middleware/auth.js';
 import {
     bookingFormPage,
     bookingPage,
@@ -30,9 +37,10 @@ router.post('/login', login);
 
 // Logout
 router.post('/logout', logout);
+router.get('/logout', logout);
 
 // Admin dashboard page
-router.get('/admin-dashboard', requirePageRole('admin'), renderAdminDashboard);
+router.get('/admin-dashboard', noStore, requirePageRole('admin'), renderAdminDashboard);
 
 
 export { router };
