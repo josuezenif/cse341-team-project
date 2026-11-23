@@ -3,7 +3,6 @@ import schedules from './seeds/schedules.json' with { type: 'json' };
 import stations from './seeds/stations.json' with { type: 'json' };
 import ticketClasses from './seeds/ticket-classes.json' with { type: 'json' };
 import trains from './seeds/trains.json' with { type: 'json' };
-import { Role } from '../models/schemas/roles.js';
 
 const starterCollections = [
   ['trips', trips],
@@ -12,6 +11,21 @@ const starterCollections = [
   ['ticketClasses', ticketClasses],
   ['trains', trains]
 ];
+
+const ensureDefaultRoles = async (db) => {
+  if (!db) {
+    throw new Error('A database connection is required to initialize roles.');
+  }
+
+  const roles = db.collection('roles');
+  for (const name of ['customer', 'admin']) {
+    await roles.updateOne(
+      { name },
+      { $setOnInsert: { name } },
+      { upsert: true }
+    );
+  }
+};
 
 const migrateBookings = async (db) => {
   const collectionNames = new Set(
@@ -77,11 +91,9 @@ const initializeDatabase = async (db) => {
   await confirmations.deleteMany({});
   await confirmations.createIndex({ id: 1 }, { unique: true });
 
-  const roles = [{ name: 'customer' }, { name: 'admin' }];
-
-  await db.collection('roles').insertMany(roles);
+  await ensureDefaultRoles(db);
   await db.collection('bookings').createIndex({ id: 1 }, { unique: true });
   await db.collection('bookings').createIndex({ 'passengers.email': 1 });
 };
 
-export { initializeDatabase, migrateBookings, starterCollections };
+export { ensureDefaultRoles, initializeDatabase, migrateBookings, starterCollections };

@@ -1,11 +1,23 @@
 import { createUser, findUserByEmail, verifyPassword } from '../models/users.js';
 import { userDashboardUrl } from '../middleware/auth.js';
 
+const passwordMeetsRequirements = (password) => (
+    typeof password === 'string'
+    && password.length >= 8
+    && /[a-z]/.test(password)
+    && /[A-Z]/.test(password)
+    && /\d/.test(password)
+);
+
 const renderRegisterPage = (req, res) => {
     if (req.user) {
         return res.redirect(userDashboardUrl(req.user));
     }
-    return res.render('register', { title: 'Register to create an account!' });
+    return res.render('register', {
+        title: 'Register to create an account!',
+        error: null,
+        formData: { name: '', email: '' }
+    });
 };
 
 const renderLoginPage = (req, res) => {
@@ -20,15 +32,40 @@ const renderLoginPage = (req, res) => {
 };
 
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const body = req.body || {};
+    const formData = {
+        name: typeof body.name === 'string' ? body.name.trim() : '',
+        email: typeof body.email === 'string' ? body.email.trim() : ''
+    };
+    const password = typeof body.password === 'string' ? body.password : '';
+
+    if (!formData.name || !formData.email || !password) {
+        return res.status(400).render('register', {
+            title: 'Register to create an account!',
+            error: 'Name, email, and password are required.',
+            formData
+        });
+    }
+
+    if (!passwordMeetsRequirements(password)) {
+        return res.status(400).render('register', {
+            title: 'Register to create an account!',
+            error: 'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.',
+            formData
+        });
+    }
+
     try {
-        await createUser(name, email, password);
-        return res.redirect('/login');
+        await createUser(formData.name, formData.email, password);
+        return res.redirect('/login?message=Account%20created%20successfully.%20Please%20sign%20in.');
     } catch (error) {
         console.error('There was an error registering a user:', error);
         return res.status(400).render('register', {
             title: 'Register to create an account!',
-            error: 'Unable to create your account. Please check your details and try again.'
+            error: error.code === 11000
+                ? 'An account with that email already exists.'
+                : 'Unable to create your account. Please check your details and try again.',
+            formData
         });
     }
 };
