@@ -11,8 +11,17 @@ const getSchedulesByTripId = async (tripId, month = null) => {
     }
 
     const schedules = await Schedule.find({ tripId: filter }).populate({ path: "trip", select: "operatingMonths -_id" }).lean();
+    //utilizes the virtual schema to populate the field of operatingMonths into the trip field
 
-    return schedules;
+    const result = schedules.map(({ trip, id, tripId, ...rest }) => ({ // ...rest refers to the rest of the json response
+        // this merely reformats the json response so that operatingMonths is JUST BELOW tripId, and gets rid of the trip field.
+      id,
+      tripId,
+      operatingMonths: trip?.operatingMonths ?? [],
+      ...rest,
+    }));
+
+    return result;
 }
 
 
