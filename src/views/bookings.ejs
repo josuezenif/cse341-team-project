@@ -1,0 +1,46 @@
+<%- include('./partials/header') %>
+
+<section class="trains-hero">
+    <h1>Bookings Admin</h1>
+    <p>Review the bookings currently stored in the system.</p>
+</section>
+
+<section class="trains-catalog" aria-live="polite">
+    <p class="trains-state" id="bookings-loading">Loading bookings...</p>
+    <p class="trains-state" id="bookings-empty" hidden>No bookings have been made yet.</p>
+    <p class="trains-state trains-error" id="bookings-error" role="alert" hidden></p>
+    <div class="trains-grid" id="bookings-list"></div>
+
+    <template id="booking-card-template">
+        <a class="booking-card-link" data-field="link" href="#">
+        <article class="train-card">
+            <header class="train-card-header">
+                <h2 data-field="id"></h2>
+                <span class="train-operator" data-field="trip"></span>
+            </header>
+            <dl class="train-specs">
+                <div class="spec-item">
+                    <dt>Schedule</dt>
+                    <dd data-field="schedule"></dd>
+                </div>
+                <div class="spec-item">
+                    <dt>Ticket Class</dt>
+                    <dd data-field="ticket"></dd>
+                </div>
+                <div class="spec-item">
+                    <dt>Travel Day</dt>
+                    <dd data-field="day"></dd>
+                </div>
+                <div class="spec-item">
+                    <dt>Booked</dt>
+                    <dd data-field="created"></dd>
+                </div>
+            </dl>
+            <h3>Passengers</h3>
+            <ul data-field="passengers"></ul>
+        </article>
+        </a>
+    </template>
+</section>
+
+<%- include('./partials/footer') %>

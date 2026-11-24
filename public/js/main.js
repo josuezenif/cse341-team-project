@@ -64,9 +64,9 @@ const hookTrainsCatalog = async () => {
             card.querySelector('[data-field="name"]').textContent = train.name;
             card.querySelector('[data-field="operator"]').textContent = train.operator;
             card.querySelector('[data-field="type"]').textContent = train.type;
-            card.querySelector('[data-field="speed"]').textContent = `${train.topSpeedKmh} km/h`;
+            card.querySelector('[data-field="speed"]').textContent = `${train.maxSpeedKmh} km/h`;
             card.querySelector('[data-field="seats"]').textContent = `${train.capacity} seats`;
-            card.querySelector('[data-field="power"]').textContent = train.power;
+            card.querySelector('[data-field="power"]').textContent = train.powerSource;
             card.querySelector('[data-field="description"]').textContent = train.description;
             card.querySelector('[data-field="best-for"]').textContent = train.bestFor;
 
@@ -93,6 +93,10 @@ const hookTripsCatalog = async () => {
     const template = document.querySelector('.trips-card-template');
     const fragment = document.createDocumentFragment();
 
+    if (!tripsList || !template) {
+        return;
+    }
+
     try {
         const response = await fetch('/api/trips');
         if (!response.ok) {
@@ -103,13 +107,13 @@ const hookTripsCatalog = async () => {
         trips.forEach(trip => {
             const tripCard = template.content.cloneNode(true);
             tripCard.querySelector('.imageUrl').setAttribute('src', trip.imageUrl);
-            tripCard.querySelector('.imageUrl').setAttribute('alt', trip.description);
+            tripCard.querySelector('.imageUrl').setAttribute('alt', trip.name);
             tripCard.querySelector('.tripName').textContent = trip.name;
             tripCard.querySelector('.trip-description').textContent = trip.description;
-            tripCard.querySelector('.duration').textContent = `${trip.durationHours} hours`;
-            tripCard.querySelector('.distance').textContent = `${trip.distanceKm} km`;
+            tripCard.querySelector('.duration').textContent = `${trip.duration}`;
+            tripCard.querySelector('.distance').textContent = `${trip.distance} km`;
             tripCard.querySelector('.bestSeason').textContent = `Best season: ${trip.bestSeason}`;
-            tripCard.querySelector('.specific-trip').setAttribute('href', `/trips?id=${trip.id}`);
+            tripCard.querySelector('.specific-trip').setAttribute('href', `/trips/${trip.id}`);
 
             fragment.append(tripCard);
         });
@@ -122,9 +126,139 @@ const hookTripsCatalog = async () => {
     }
 }
 
+const stationDetailsCache = new Map();
+
+const renderStationDetails = (container, station) => {
+    const details = document.createElement('dl');
+    const fields = [
+        ['Prefecture', station.prefecture],
+        ['Region', station.region],
+        ['Description', station.description],
+        ['Facilities', Array.isArray(station.facilities) ? station.facilities.join(', ') : '']
+    ];
+
+    fields.forEach(([label, value]) => {
+        const term = document.createElement('dt');
+        const description = document.createElement('dd');
+        term.textContent = label;
+        description.textContent = value || 'Not available';
+        details.append(term, description);
+    });
+
+    container.replaceChildren(details);
+};
+
+const hookStationDetails = () => {
+    document.querySelectorAll('.station-details-toggle').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const container = document.getElementById(button.getAttribute('aria-controls'));
+            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+            button.setAttribute('aria-expanded', String(!isExpanded));
+            container.hidden = isExpanded;
+
+            if (isExpanded || container.dataset.loaded === 'true') {
+                return;
+            }
+
+            const stationId = button.dataset.stationId;
+            container.textContent = 'Loading station details...';
+
+            try {
+                let station = stationDetailsCache.get(stationId);
+                if (!station) {
+                    const response = await fetch(`/api/stations/${encodeURIComponent(stationId)}`);
+                    if (!response.ok) {
+                        throw new Error(`Station request failed with status ${response.status}`);
+                    }
+
+                    station = await response.json();
+                    stationDetailsCache.set(stationId, station);
+                }
+
+                renderStationDetails(container, station);
+                container.dataset.loaded = 'true';
+            } catch (error) {
+                console.error('Unable to retrieve station details:', error);
+                container.textContent = 'Unable to load station details. Please try again.';
+            }
+        });
+    });
+};
+
+const hookBookingsCatalog = async () => {
+    const listEl = document.getElementById('bookings-list');
+    const templateEl = document.getElementById('booking-card-template');
+    const loadingEl = document.getElementById('bookings-loading');
+    const emptyEl = document.getElementById('bookings-empty');
+    const errorEl = document.getElementById('bookings-error');
+
+    if (!listEl || !templateEl) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/bookings');
+        if (!response.ok) {
+            throw new Error(`Failed to load bookings (${response.status})`);
+        }
+
+        const bookings = await response.json();
+        if (!Array.isArray(bookings)) {
+            throw new Error('The bookings response was not a list.');
+        }
+
+        if (loadingEl) {
+            loadingEl.hidden = true;
+        }
+        if (bookings.length === 0) {
+            if (emptyEl) {
+                emptyEl.hidden = false;
+            }
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        bookings.forEach((booking) => {
+            const card = templateEl.content.cloneNode(true);
+            card.querySelector('[data-field="link"]').href =
+                `/bookings/${encodeURIComponent(booking.id)}`;
+            card.querySelector('[data-field="id"]').textContent = booking.id;
+            card.querySelector('[data-field="trip"]').textContent = booking.tripId;
+            card.querySelector('[data-field="schedule"]').textContent = booking.scheduleId;
+            card.querySelector('[data-field="ticket"]').textContent = booking.ticketClass;
+            card.querySelector('[data-field="day"]').textContent = booking.selectedDay;
+            card.querySelector('[data-field="created"]').textContent = booking.createdAt
+                ? new Date(booking.createdAt).toLocaleString()
+                : 'Unknown';
+
+            const passengersEl = card.querySelector('[data-field="passengers"]');
+            (booking.passengers || []).forEach((passenger) => {
+                const item = document.createElement('li');
+                item.textContent = `${passenger.firstName} ${passenger.lastName} - ${passenger.email} - ${passenger.phone}`;
+                passengersEl.appendChild(item);
+            });
+
+            fragment.appendChild(card);
+        });
+
+        listEl.replaceChildren(fragment);
+    } catch (error) {
+        if (loadingEl) {
+            loadingEl.hidden = true;
+        }
+        if (errorEl) {
+            errorEl.hidden = false;
+            errorEl.textContent = 'Unable to load bookings right now. Please try again in a moment.';
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     hookRegionSorter();
     hookSeasonSorter();
     hookTrainsCatalog();
     hookTripsCatalog();
+    hookStationDetails();
+    hookBookingsCatalog();
 });

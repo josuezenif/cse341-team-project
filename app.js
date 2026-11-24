@@ -1,14 +1,31 @@
 import express from 'express';
 import Path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import pkg from './package.json' with { type: 'json' };
 import globalMiddleware from './src/middleware/global.js';
 import routes from './src/routes/router.js';
+import session from 'express-session';
+import { loadSessionUser } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = Path.dirname(__filename);
 
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
 const app = express();
+
+// Set up session management
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: { maxAge: 60 * 60 * 1000 } // Session expires after 1 hour of inactivity
+}));
+
+app.use(loadSessionUser);
 
 // Add version info to res.locals for access in templates.
 app.use((req, res, next) => {
@@ -20,6 +37,18 @@ app.use((req, res, next) => {
 app.use(express.static(Path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', Path.join(__dirname, 'src/views'));
+
+const swaggerDocument = swaggerJsdoc({
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Kizuna Rail API',
+            version: pkg.version
+        }
+    },
+    apis: [Path.join(__dirname, 'src/routes/api-routes.js')]
+});
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Parse JSON and URL-encoded request bodies.
 app.use(express.json({ limit: '10mb' }));
