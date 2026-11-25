@@ -93,6 +93,10 @@ const hookTripsCatalog = async () => {
     const template = document.querySelector('.trips-card-template');
     const fragment = document.createDocumentFragment();
 
+    if (!tripsList || !template) {
+        return;
+    }
+
     try {
         const response = await fetch('/api/trips');
         if (!response.ok) {
@@ -121,6 +125,66 @@ const hookTripsCatalog = async () => {
         console.error('Unable to retrieve trips api!', error);
     }
 }
+
+const stationDetailsCache = new Map();
+
+const renderStationDetails = (container, station) => {
+    const details = document.createElement('dl');
+    const fields = [
+        ['Prefecture', station.prefecture],
+        ['Region', station.region],
+        ['Description', station.description],
+        ['Facilities', Array.isArray(station.facilities) ? station.facilities.join(', ') : '']
+    ];
+
+    fields.forEach(([label, value]) => {
+        const term = document.createElement('dt');
+        const description = document.createElement('dd');
+        term.textContent = label;
+        description.textContent = value || 'Not available';
+        details.append(term, description);
+    });
+
+    container.replaceChildren(details);
+};
+
+const hookStationDetails = () => {
+    document.querySelectorAll('.station-details-toggle').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const container = document.getElementById(button.getAttribute('aria-controls'));
+            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+            button.setAttribute('aria-expanded', String(!isExpanded));
+            container.hidden = isExpanded;
+
+            if (isExpanded || container.dataset.loaded === 'true') {
+                return;
+            }
+
+            const stationId = button.dataset.stationId;
+            container.textContent = 'Loading station details...';
+
+            try {
+                let station = stationDetailsCache.get(stationId);
+                if (!station) {
+                    const response = await fetch(`/api/stations/${encodeURIComponent(stationId)}`);
+                    if (!response.ok) {
+                        throw new Error(`Station request failed with status ${response.status}`);
+                    }
+
+                    station = await response.json();
+                    stationDetailsCache.set(stationId, station);
+                }
+
+                renderStationDetails(container, station);
+                container.dataset.loaded = 'true';
+            } catch (error) {
+                console.error('Unable to retrieve station details:', error);
+                container.textContent = 'Unable to load station details. Please try again.';
+            }
+        });
+    });
+};
 
 const hookBookingsCatalog = async () => {
     const listEl = document.getElementById('bookings-list');
@@ -195,5 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hookSeasonSorter();
     hookTrainsCatalog();
     hookTripsCatalog();
+    hookStationDetails();
     hookBookingsCatalog();
 });
