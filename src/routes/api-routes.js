@@ -7,6 +7,7 @@ import {
   getAllBookings,
   getBookingByIdHandler
 } from "../controllers/bookings.js";
+import { getAllTicketClassesHandler, getTicketClassesForDayHandler } from "../controllers/ticket-classes.js";
 
 const router = express.Router();
 
@@ -138,6 +139,66 @@ const router = express.Router();
  *       properties:
  *         message:
  *           type: string
+ * 
+ *     TicketClass:
+ *       type: object
+ *       properties:
+ *         class:
+ *           type: string
+ *           example: standard
+ *         name:
+ *           type: string
+ *           example: Standard Class
+ *         pricePerKm:
+ *           type: number
+ *           example: 0.5
+ *         amenities:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description:
+ *           type: string
+ *         available:
+ *           type: boolean
+ *           example: true
+ *    
+ */
+
+/**
+ * @swagger
+ * /api/ticket-classes:
+ *   get:
+ *     summary: Get all ticket classes or filter by weekday
+ *     tags: [Ticket Classes]
+ *     parameters:
+ *       - in: query
+ *         name: day
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+ *         description: Filter ticket classes by weekday.
+ *     responses:
+ *       200:
+ *         description: List of ticket classes with availability information when a weekday is provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/TicketClass'
+ *       400:
+ *         description: Invalid weekday provided.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ *       500:
+ *         description: Internal service error while retrieving ticket classes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  */
 
 /**
@@ -358,5 +419,13 @@ router.post('/bookings', createBookingHandler);
  *               $ref: '#/components/schemas/ApiError'
  */
 router.get('/bookings/:bookingId', getBookingByIdHandler);
+
+router.get("/ticket-classes", (req, res, next) => {
+  if (req.query.day !== undefined) {
+    return getTicketClassesForDayHandler(req, res, next);
+  }
+
+  return getAllTicketClassesHandler(req, res, next);
+});
 
 export { router };

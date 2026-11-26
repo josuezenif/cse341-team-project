@@ -5,6 +5,7 @@ import {
     getAllBookings as findAllBookings,
     getBookingById
 } from '../models/bookings.js';
+import { getTicketClassesForDay } from '../models/ticket-classes.js';
 
 const getAllBookings = async (req, res) => {
     try {
@@ -116,6 +117,38 @@ const bookingFormPage = async (req, res) => {
 
 const processBookingRequest = async (req, res) => {
     try {
+        const db = getDb();
+
+        const schedule = await db.collection('schedules').findOne({
+            id: Number(req.body.scheduleId)
+        });
+
+        if (!schedule || !schedule.status) {
+            return res.status(400).type('text').send(
+                'The selected schedule is unavailable.'
+            );
+        }
+
+        const selectedDay = req.body.selectedDay?.trim().toLowerCase();
+
+        if (!schedule.daysOfWeek.includes(selectedDay)) {
+            return res.status(400).type('text').send(
+                'The selected day is not available for this schedule.'
+            );
+        }
+
+        const ticketClasses = await getTicketClassesForDay(selectedDay);
+
+        const selectedClass = ticketClasses.find(
+            (ticket) => ticket.class === req.body.ticketClass
+        );
+
+        if (!selectedClass || !selectedClass.available) {
+            return res.status(400).type('text').send(
+                'The selected ticket class is unavailable for this day.'
+            );
+        }
+
         const booking = await createBooking({
             ...req.body,
             id: generateBookingId()
