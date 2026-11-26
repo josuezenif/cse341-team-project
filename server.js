@@ -1,6 +1,6 @@
 import app from './app.js';
 import { connectToDb, connectToMongoose } from './src/db/connect.js';
-import { migrateBookings } from './src/db/initialize.js';
+import { ensureDefaultRoles, migrateBookings } from './src/db/initialize.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Connect and migrate stored bookings before accepting requests.
 const db = await connectToDb();
 await migrateBookings(db);
+await ensureDefaultRoles(db);
 
 await connectToMongoose(); // Calling mongoose (without it app crashed and doesn't work)
 

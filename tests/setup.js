@@ -7,6 +7,8 @@ import {
 } from '../src/db/connect.js';
 import { initializeDatabase } from '../src/db/initialize.js';
 
+process.env.SESSION_SECRET ||= 'test-only-session-secret';
+
 const connectionString = inject('MONGODB_TEST_URI');
 
 beforeAll(async () => {

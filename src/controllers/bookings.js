@@ -3,7 +3,8 @@ import { generateBookingId } from '../includes/helpers.js';
 import {
     createBooking,
     getAllBookings as findAllBookings,
-    getBookingById
+    getBookingById,
+    getBookingsByPassengerEmail
 } from '../models/bookings.js';
 
 const getAllBookings = async (req, res) => {
@@ -12,7 +13,12 @@ const getAllBookings = async (req, res) => {
         return res.status(200).json(allBookings);
     } catch (error) {
         console.error('Error fetching bookings:', error);
-        return res.status(500).json({ message: 'Unable to retrieve bookings.' });
+        return res.status(500).json({
+            error: {
+                code: 'INTERNAL_ERROR',
+                message: 'Something went wrong. Please try again later.'
+            }
+        });
     }
 };
 
@@ -20,13 +26,20 @@ const getBookingByIdHandler = async (req, res) => {
     try {
         const booking = await getBookingById(req.params.bookingId);
         if (!booking) {
-            return res.status(404).json({ message: 'Booking not found.' });
+            return res.status(404).json({
+                error: { code: 'NOT_FOUND', message: 'Booking not found.' }
+            });
         }
 
         return res.status(200).json(booking);
     } catch (error) {
         console.error('Error fetching booking:', error);
-        return res.status(500).json({ message: 'Unable to retrieve booking.' });
+        return res.status(500).json({
+            error: {
+                code: 'INTERNAL_ERROR',
+                message: 'Something went wrong. Please try again later.'
+            }
+        });
     }
 };
 
@@ -50,7 +63,12 @@ const createBookingHandler = async (req, res) => {
                 ? 'A booking with this reference already exists.'
                 : 'Unable to save your booking right now.';
 
-        return res.status(status).json({ message });
+        return res.status(status).json({
+            error: {
+                code: status === 400 ? 'VALIDATION_ERROR' : status === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+                message: status === 500 ? 'Something went wrong. Please try again later.' : message
+            }
+        });
     }
 };
 
@@ -162,6 +180,21 @@ const bookingsAdminPage = (req, res) => {
     return res.render('bookings', { title: 'Bookings Admin' });
 };
 
+const getMyBookings = async (req, res) => {
+    try {
+        const bookings = await getBookingsByPassengerEmail(req.user.email);
+        return res.status(200).json(bookings);
+    } catch (error) {
+        console.error('Error fetching my bookings:', error);
+        return res.status(500).json({
+            error: {
+                code: 'INTERNAL_ERROR',
+                message: 'Something went wrong. Please try again later.'
+            }
+        });
+    }
+};
+
 export {
     bookingPage,
     bookingFormPage,
@@ -169,5 +202,6 @@ export {
     createBookingHandler,
     getBookingByIdHandler,
     getAllBookings,
-    processBookingRequest
+    processBookingRequest,
+    getMyBookings
 };
