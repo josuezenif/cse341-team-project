@@ -7,7 +7,7 @@ import pkg from './package.json' with { type: 'json' };
 import globalMiddleware from './src/middleware/global.js';
 import routes from './src/routes/router.js';
 import session from 'express-session';
-import { loadSessionUser } from './src/middleware/auth.js';
+import { loadSessionUser, setUserLocals } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = Path.dirname(__filename);
@@ -15,6 +15,9 @@ const __dirname = Path.dirname(__filename);
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 const app = express();
+if (process.env.RENDER) {
+    app.set('trust proxy', 1);
+}
 
 // Set up session management
 app.use(session({
@@ -22,10 +25,16 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     rolling: true,
-    cookie: { maxAge: 60 * 60 * 1000 } // Session expires after 1 hour of inactivity
+    cookie: {
+        maxAge: 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: Boolean(process.env.RENDER)
+    }
 }));
 
 app.use(loadSessionUser);
+app.use(setUserLocals);
 
 // Add version info to res.locals for access in templates.
 app.use((req, res, next) => {
@@ -68,10 +77,24 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     const status = err.status || 500;
     const template = status === 404 ? '404' : '500';
+    const message = status === 404
+        ? 'Page Not Found'
+        : 'Something went wrong. Please try again later.';
+    if (status !== 404) {
+        console.error('Unhandled application error:', err);
+    }
+    if (req.originalUrl.startsWith('/api/')) {
+        return res.status(status).json({
+            error: {
+                code: status === 404 ? 'NOT_FOUND' : 'INTERNAL_ERROR',
+                message
+            }
+        });
+    }
     const context = {
         title: status === 404 ? 'Page Not Found' : 'Server Error',
-        error: err.message,
-        stack: err.stack
+        error: message,
+        stack: ''
     };
 
     return res.status(status).render(`errors/${template}`, context);

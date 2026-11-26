@@ -1,10 +1,29 @@
 import { describe, expect, test } from 'vitest';
 import request from 'supertest';
 import path from 'node:path';
+import bcrypt from 'bcrypt';
 import swaggerJsdoc from 'swagger-jsdoc';
 import app from '../app.js';
 import { getDb } from '../src/db/connect.js';
 import { migrateBookings } from '../src/db/initialize.js';
+import { Role } from '../src/models/schemas/roles.js';
+import { User } from '../src/models/schemas/users.js';
+
+const createAdminAgent = async () => {
+  const role = await Role.findOne({ name: 'admin' });
+  await User.create({
+    name: 'Admin',
+    email: 'admin@example.com',
+    passwordHash: await bcrypt.hash('admin-password', 4),
+    role: role._id
+  });
+  const agent = request.agent(app);
+  await agent.post('/login').type('form').send({
+    email: 'admin@example.com',
+    password: 'admin-password'
+  });
+  return agent;
+};
 
 describe('Bookings', () => {
   test('Swagger UI is available', async () => {
@@ -18,10 +37,13 @@ describe('Bookings', () => {
       apis: [path.join(process.cwd(), 'src', 'routes', 'api-routes.js')]
     });
     expect(specification.paths['/api/bookings/{bookingId}']).toBeDefined();
+    expect(specification.paths['/api/bookings/me'].get.responses['401']).toBeDefined();
+    expect(specification.paths['/api/bookings'].get.responses['403']).toBeDefined();
   });
 
   test('bookings admin page starts in a client-side loading state', async () => {
-    const response = await request(app).get('/bookings-admin');
+    const agent = await createAdminAgent();
+    const response = await agent.get('/bookings-admin');
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('id="bookings-loading"');
@@ -30,7 +52,8 @@ describe('Bookings', () => {
   });
 
   test('bookings page renders the styled admin listing', async () => {
-    const response = await request(app).get('/bookings');
+    const agent = await createAdminAgent();
+    const response = await agent.get('/bookings');
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('href="/css/main.css"');
@@ -64,7 +87,8 @@ describe('Bookings', () => {
   });
 
   test('GET /api/bookings returns an empty array when there are no bookings', async () => {
-    const response = await request(app).get('/api/bookings');
+    const agent = await createAdminAgent();
+    const response = await agent.get('/api/bookings');
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
@@ -106,6 +130,7 @@ describe('Bookings', () => {
   });
 
   test('booking form submission stores passenger details and renders the booking', async () => {
+    const agent = await createAdminAgent();
     const response = await request(app)
       .post('/trips/book')
       .type('form')
@@ -123,7 +148,7 @@ describe('Bookings', () => {
     expect(response.status).toBe(302);
     expect(response.headers.location).toMatch(/^\/trips\/confirmation\/JR/);
 
-    const bookingsResponse = await request(app).get('/api/bookings');
+    const bookingsResponse = await agent.get('/api/bookings');
     expect(bookingsResponse.status).toBe(200);
     expect(bookingsResponse.body).toHaveLength(1);
     expect(bookingsResponse.body[0]).toMatchObject({
@@ -143,6 +168,7 @@ describe('Bookings', () => {
   });
 
   test('invalid bookings return an error and are not saved', async () => {
+    const agent = await createAdminAgent();
     const response = await request(app)
       .post('/trips/book')
       .type('form')
@@ -156,7 +182,7 @@ describe('Bookings', () => {
     expect(response.status).toBe(400);
     expect(response.text).toContain('booking details are invalid');
 
-    const bookingsResponse = await request(app).get('/api/bookings');
+    const bookingsResponse = await agent.get('/api/bookings');
     expect(bookingsResponse.body).toEqual([]);
   });
 

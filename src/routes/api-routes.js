@@ -5,7 +5,8 @@ import { requireApiLogin, requireApiRole } from "../middleware/auth.js";
 import {
   createBookingHandler,
   getAllBookings,
-  getBookingByIdHandler
+  getBookingByIdHandler,
+  getMyBookings
 } from "../controllers/bookings.js";
 import { getAllTicketClassesHandler, getTicketClassesForDayHandler } from "../controllers/ticket-classes.js";
 
@@ -134,11 +135,46 @@ const router = express.Router();
  *         createdAt:
  *           type: string
  *           format: date-time
+ *     DashboardBookingPassenger:
+ *       type: object
+ *       required: [firstName, lastName, email]
+ *       properties:
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         email:
+ *           type: string
+ *     MyBooking:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         passengers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DashboardBookingPassenger'
+ *         scheduleId:
+ *           type: string
+ *         tripId:
+ *           type: string
+ *         ticketClass:
+ *           type: string
+ *         selectedDay:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
  *     ApiError:
  *       type: object
  *       properties:
- *         message:
- *           type: string
+ *         error:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: string
+ *             message:
+ *               type: string
  * 
  *     TicketClass:
  *       type: object
@@ -326,6 +362,30 @@ router.get('/stations/:id', getStationById);
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Booking'
+ *             example:
+ *               - id: JR8K2M4P1
+ *                 passengers:
+ *                   - firstName: Alex
+ *                     lastName: Smith
+ *                     email: alex@example.com
+ *                     phone: "+81 90-1234-5678"
+ *                 scheduleId: "1"
+ *                 tripId: alpine-panorama
+ *                 ticketClass: standard
+ *                 selectedDay: monday
+ *                 createdAt: "2026-11-18T12:00:00.000Z"
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ *       403:
+ *         description: Administrator access required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  *       500:
  *         description: Internal service error while retrieving bookings
  *         content:
@@ -382,8 +442,38 @@ router.get('/stations/:id', getStationById);
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-router.get('/bookings', getAllBookings);
+router.get('/bookings', requireApiRole('admin'), getAllBookings);
 router.post('/bookings', createBookingHandler);
+
+/**
+ * @swagger
+ * /api/bookings/me:
+ *   get:
+ *     summary: Get bookings for the signed-in passenger
+ *     tags: [Bookings]
+ *     responses:
+ *       200:
+ *         description: Bookings containing a passenger with the signed-in user's email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/MyBooking'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ *       500:
+ *         description: Internal service error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+router.get('/bookings/me', requireApiLogin, getMyBookings);
 
 /**
  * @swagger

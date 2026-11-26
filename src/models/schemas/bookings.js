@@ -15,7 +15,8 @@ const passengerSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            lowercase: true
         },
         phone: {
             type: String,
@@ -75,6 +76,8 @@ const bookingsSchema = new mongoose.Schema(
         collection: 'bookings'
     }
 );
+
+bookingsSchema.index({ 'passengers.email': 1 });
 
 const bookings = mongoose.model('bookings', bookingsSchema);
 

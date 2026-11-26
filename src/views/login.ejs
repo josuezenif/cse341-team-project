@@ -3,6 +3,12 @@
         <h1>
             <%= title %>
         </h1>
+        <% if (message) { %>
+            <p role="status"><%= message %></p>
+        <% } %>
+        <% if (error) { %>
+            <p role="alert"><%= error %></p>
+        <% } %>
 
         <form action="/login" method="post" id="login-form">
 
