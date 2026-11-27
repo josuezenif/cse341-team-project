@@ -1,36 +1,14 @@
 const hookRegionSorter = () => {
     const regionSelect = document.getElementById('region-filter');
     if (regionSelect) {
-        regionSelect.addEventListener('change', () => {
-            const selectedRegion = regionSelect.value;
-            const url = new URL(window.location.href);
-
-            if (selectedRegion && selectedRegion !== 'all') {
-                url.searchParams.set('region', selectedRegion);
-            } else {
-                url.searchParams.delete('region');
-            }
-
-            window.location.href = url.toString();
-        });
+        regionSelect.dataset.hooked = 'true';
     }
 };
 
 const hookSeasonSorter = () => {
     const seasonSelect = document.getElementById('season-filter');
     if (seasonSelect) {
-        seasonSelect.addEventListener('change', () => {
-            const selectedSeason = seasonSelect.value;
-            const url = new URL(window.location.href);
-
-            if (selectedSeason && selectedSeason !== 'all') {
-                url.searchParams.set('season', selectedSeason);
-            } else {
-                url.searchParams.delete('season');
-            }
-
-            window.location.href = url.toString();
-        });
+        seasonSelect.dataset.hooked = 'true';
     }
 };
 
@@ -91,18 +69,37 @@ const hookTrainsCatalog = async () => {
 const hookTripsCatalog = async () => {
     const tripsList = document.getElementById('trips-list');
     const template = document.querySelector('.trips-card-template');
+    const searchInput = document.getElementById('trip-search');
+    const regionSelect = document.getElementById('region-filter');
+    const seasonSelect = document.getElementById('season-filter');
+    const previousButton = document.getElementById('trips-prev');
+    const nextButton = document.getElementById('trips-next');
+    const pageStatus = document.getElementById('trips-page-status');
     const fragment = document.createDocumentFragment();
 
-    if (!tripsList || !template) {
+    if (!tripsList || !template || !searchInput || !regionSelect || !seasonSelect
+        || !previousButton || !nextButton || !pageStatus) {
         return;
     }
 
-    try {
-        const response = await fetch('/api/trips');
+    let currentPage = 1;
+    let searchTimer;
+    const loadTrips = async () => {
+        const params = new URLSearchParams({
+            page: String(currentPage),
+            limit: '10',
+            q: searchInput.value.trim(),
+            region: regionSelect.value,
+            season: seasonSelect.value,
+            sort: 'name',
+            order: 'asc'
+        });
+        const response = await fetch(`/api/trips?${params}`);
         if (!response.ok) {
             throw new Error(`Failed to retrieve trips from API!: ${response.status}`);
         }
-        const trips = await response.json();
+        const payload = await response.json();
+        const trips = payload.data || [];
 
         trips.forEach(trip => {
             const tripCard = template.content.cloneNode(true);
@@ -119,6 +116,46 @@ const hookTripsCatalog = async () => {
         });
 
         tripsList.replaceChildren(fragment);
+        pageStatus.textContent = payload.metadata.totalItems === 0
+            ? 'No results'
+            : `Page ${payload.metadata.currentPage} of ${payload.metadata.totalPages}`;
+        previousButton.disabled = payload.metadata.currentPage <= 1;
+        nextButton.disabled = payload.metadata.currentPage >= payload.metadata.totalPages;
+    };
+
+    try {
+        const query = new URLSearchParams(window.location.search);
+        if ([...regionSelect.options].some(option => option.value === (query.get('region') || 'all'))) {
+            regionSelect.value = query.get('region') || 'all';
+        }
+        if ([...seasonSelect.options].some(option => option.value === (query.get('season') || 'all'))) {
+            seasonSelect.value = query.get('season') || 'all';
+        }
+        searchInput.value = query.get('q') || '';
+        await loadTrips();
+        regionSelect.addEventListener('change', async () => {
+            currentPage = 1;
+            await loadTrips();
+        });
+        seasonSelect.addEventListener('change', async () => {
+            currentPage = 1;
+            await loadTrips();
+        });
+        searchInput.addEventListener('input', () => {
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(async () => {
+                currentPage = 1;
+                await loadTrips();
+            }, 300);
+        });
+        previousButton.addEventListener('click', async () => {
+            currentPage -= 1;
+            await loadTrips();
+        });
+        nextButton.addEventListener('click', async () => {
+            currentPage += 1;
+            await loadTrips();
+        });
     }
 
     catch (error) {
