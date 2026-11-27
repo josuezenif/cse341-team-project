@@ -75,5 +75,5 @@ const tripsSchema = new mongoose.Schema(
     }
 );
 
-const trips = mongoose.model('trips', tripsSchema);
-export default trips;
+const Trips = mongoose.model('trips', tripsSchema);
+export default Trips;
