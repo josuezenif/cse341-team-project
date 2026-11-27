@@ -3,8 +3,30 @@ import { getDb } from "../db/connect.js";
 
 const getAllTripsHandler = async (req, res) => {
     try {
-        const trips = await getAllTrips();
-        return res.status(200).json(trips);
+        const pageValue = req.query.page ?? '1';
+        const limitValue = req.query.limit ?? '10';
+        if (!/^\d+$/.test(pageValue) || Number(pageValue) < 1) {
+            return res.status(400).json({ error: 'The page parameter must be a positive integer.' });
+        }
+        if (!/^\d+$/.test(limitValue) || Number(limitValue) < 1 || Number(limitValue) > 100) {
+            return res.status(400).json({ error: 'The limit parameter must be an integer from 1 to 100.' });
+        }
+
+        const page = Number(pageValue);
+        const limit = Number(limitValue);
+        const skip = (page - 1) * limit;
+        const result = await getAllTrips({ skip, limit });
+        const totalPages = Math.ceil(result.totalItems / limit);
+
+        return res.status(200).json({
+            data: result.data,
+            metadata: {
+                totalItems: result.totalItems,
+                totalPages,
+                currentPage: page,
+                limit
+            }
+        });
     }
 
     catch (error) {
