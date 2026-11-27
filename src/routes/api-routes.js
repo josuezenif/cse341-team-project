@@ -15,6 +15,23 @@ const router = express.Router();
  * @swagger
  * components:
  *   schemas:
+ *     TripQueryMetadata:
+ *       type: object
+ *       required: [totalItems, totalPages, currentPage, limit]
+ *       properties:
+ *         totalItems:
+ *           type: integer
+ *           minimum: 0
+ *         totalPages:
+ *           type: integer
+ *           minimum: 0
+ *         currentPage:
+ *           type: integer
+ *           minimum: 1
+ *         limit:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
  *     Trip:
  *       type: object
  *       properties:
@@ -180,17 +197,39 @@ const router = express.Router();
  * @swagger
  * /api/trips:
  *   get:
- *     summary: Get all trips
+ *     summary: Get a paginated trip list
  *     tags: [Trips]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
  *     responses:
  *       200:
- *         description: A list of trips
+ *         description: A paginated list of trips and query metadata
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Trip'
+ *               type: object
+ *               required: [data, metadata]
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Trip'
+ *                 metadata:
+ *                   $ref: '#/components/schemas/TripQueryMetadata'
+ *       400:
+ *         description: Invalid pagination parameters
  *       500:
  *         description: Internal service error while retrieving trips
  *         content:
