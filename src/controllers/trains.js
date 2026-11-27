@@ -2,6 +2,7 @@
 import {
   getTrainById as findTrainById,
   getAllTrains as findAllTrains,
+  getPaginatedTrains
 } from "../models/trains.js";
 
 export async function getTrainById(req, res) {
@@ -37,5 +38,80 @@ export async function getAllTrains(req, res) {
     return res.status(500).json({
       error: "Failed to fetch trains",
     });
+  }
+}
+
+
+// Paginated trips API controller function
+const sortFields = ['name', 'type', 'powerSource'];
+
+// convert string to number (integer) function
+const parsePositiveInteger = (value, defaultVlaue) => { // default value == 2
+  if (value === undefined) {
+    return defaultVlaue;
+  }
+
+  const parsedNum = Number(value); // --- convert string to number
+  if (!Number.isInteger(parsedNum) || parsedNum < 1) { // --- checks if number is less than 1
+    return null;
+  }
+
+  return parsedNum;
+}
+
+export const getTrainsPaginated = async (req, res, next) => {
+  try {
+    const page = parsePositiveInteger(req.query.page, 1);
+    const limit = parsePositiveInteger(req.query.limit, 10);
+    const sort = req.query.sort || 'name'; // 'name' is default value if no 'sort' value is added
+    const order = req.query.order === 'desc' ? -1 : 1; // default order 'desc'
+    const powerSource = req.query.powerSource;
+
+    const filter = {}; // addind filters by power
+
+    if (powerSource) {
+      filter.powerSource = powerSource;
+    }
+
+    if (!page || !limit || limit > 50) {
+      return res.status(400).json({
+        errors: [{
+          field: 'pagination',
+          message: 'page and limit must be valid integer numbers'
+        }]
+      });
+    }
+    if (sort && !sortFields.includes(sort)) {
+      return res.status(400).json({
+        errors: [{
+          field: 'sort',
+          message: 'Sort value not supported. Must be between: name, type, powerSource'
+        }]
+      });
+    }
+
+    const { trains, totalItems } = await getPaginatedTrains({
+      filter,
+      page,
+      limit,
+      sort,
+      order
+    });
+
+    return res.status(200).json({
+      data: trains,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        hasNextPage: page * limit < totalItems,
+        hasPreviousPage: page > 1
+      }
+    });
+  }
+
+  catch (error) {
+    next(error);
   }
 }

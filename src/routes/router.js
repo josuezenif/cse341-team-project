@@ -36,9 +36,6 @@ router.get('/bookings-admin', noStore, requirePageRole('admin'), bookingsAdminPa
 // User admin page
 router.get('/users-admin', noStore, requirePageRole('admin'), usersAdminPage);
 
-// Trains API
-router.get('/api/trains', trainsApi);
-
 // Trips router API
 router.use('/api', apiRouter);
 

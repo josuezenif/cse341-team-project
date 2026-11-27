@@ -9,6 +9,7 @@ import {
   getMyBookings
 } from "../controllers/bookings.js";
 import { getAllTicketClassesHandler, getTicketClassesForDayHandler } from "../controllers/ticket-classes.js";
+import { getTrainsPaginated } from "../controllers/trains.js";
 
 const router = express.Router();
 
@@ -197,6 +198,80 @@ const router = express.Router();
  *         available:
  *           type: boolean
  *           example: true
+ *     Train:
+ *       type: object
+ *       required: [id, name, operator, type, maxSpeedKmh, capacity, powerSource]
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: MongoDB document ID
+ *         id:
+ *           type: string
+ *           example: nozomi
+ *         name:
+ *           type: string
+ *           example: Nozomi
+ *         operator:
+ *           type: string
+ *           example: JR Central
+ *         imageUrl:
+ *           type: string
+ *         imageAlt:
+ *           type: string
+ *         type:
+ *           type: string
+ *           example: Shinkansen
+ *         maxSpeedKmh:
+ *           type: number
+ *           example: 300
+ *         capacity:
+ *           type: integer
+ *           example: 1323
+ *         powerSource:
+ *           type: string
+ *           example: Electric
+ *         bestFor:
+ *           type: string
+ *         description:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *     Pagination:
+ *       type: object
+ *       required: [page, limit, totalItems, totalPages, hasNextPage, hasPreviousPage]
+ *       properties:
+ *         page:
+ *           type: integer
+ *           example: 1
+ *         limit:
+ *           type: integer
+ *           example: 10
+ *         totalItems:
+ *           type: integer
+ *           example: 24
+ *         totalPages:
+ *           type: integer
+ *           example: 3
+ *         hasNextPage:
+ *           type: boolean
+ *           example: true
+ *         hasPreviousPage:
+ *           type: boolean
+ *           example: false
+ *     PaginatedTrains:
+ *       type: object
+ *       required: [data, pagination]
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Train'
+ *         pagination:
+ *           $ref: '#/components/schemas/Pagination'
  *    
  */
 
@@ -291,6 +366,78 @@ router.get('/trips', getAllTripsHandler);
  *               $ref: '#/components/schemas/ApiError'
  */
 router.get('/trips/:_id', getTripByIdHandler);
+
+/**
+ * @swagger
+ * /api/trains:
+ *   get:
+ *     summary: Get a paginated list of trains
+ *     tags: [Trains]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Page number to retrieve.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Number of trains per page. Maximum 50.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *       - in: query
+ *         name: sort
+ *         required: false
+ *         description: Field used to sort the trains.
+ *         schema:
+ *           type: string
+ *           enum: [name, type, powerSource]
+ *           default: name
+ *       - in: query
+ *         name: order
+ *         required: false
+ *         description: Sort direction. Use desc for descending order; ascending order is the default.
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *     responses:
+ *       200:
+ *         description: A paginated list of trains
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedTrains'
+ *       400:
+ *         description: Invalid pagination or sort parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       field:
+ *                         type: string
+ *                       message:
+ *                         type: string
+ *       500:
+ *         description: Internal service error while retrieving trains
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+router.get('/trains', getTrainsPaginated);
 
 /**
  * @swagger
