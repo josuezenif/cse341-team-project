@@ -1,4 +1,3 @@
-import railTripsRouter from './trips.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { Router } from 'express';
 import { homePage, aboutPage, testErrorPage } from './index.js';
@@ -15,9 +14,6 @@ router.get('/', homePage);
 
 // About page
 router.get('/about', aboutPage);
-
-// Trips and booking flow
-router.use('/trips', railTripsRouter);
 
 // Dashboard page
 router.get('/dashboard', noStore, requirePageLogin, userDashboardPage);

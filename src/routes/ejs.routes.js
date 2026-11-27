@@ -17,9 +17,9 @@ import {
 
 const router = express.Router();
 
-router.get('/booking/:scheduleId', bookingFormPage);
-router.post('/book', processBookingRequest);
-router.get('/confirmation/:bookingId', bookingPage);
+router.get('/trips/booking/:scheduleId', bookingFormPage);
+router.post('/trips/book', processBookingRequest);
+router.get('/trips/confirmation/:bookingId', bookingPage);
 
 // Trip page
 router.get('/trips/:id', getTripDetails);
