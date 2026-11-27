@@ -69,6 +69,7 @@ const hookTrainsCatalog = async () => {
 const hookTripsCatalog = async () => {
     const tripsList = document.getElementById('trips-list');
     const template = document.querySelector('.trips-card-template');
+    const searchInput = document.getElementById('trip-search');
     const regionSelect = document.getElementById('region-filter');
     const seasonSelect = document.getElementById('season-filter');
     const previousButton = document.getElementById('trips-prev');
@@ -76,16 +77,22 @@ const hookTripsCatalog = async () => {
     const pageStatus = document.getElementById('trips-page-status');
     const fragment = document.createDocumentFragment();
 
-    if (!tripsList || !template || !regionSelect || !seasonSelect
+    if (!tripsList || !template || !searchInput || !regionSelect || !seasonSelect
         || !previousButton || !nextButton || !pageStatus) {
         return;
     }
 
     let currentPage = 1;
+    let searchTimer;
     const loadTrips = async () => {
         const params = new URLSearchParams({
             page: String(currentPage),
-            limit: '10'
+            limit: '10',
+            q: searchInput.value.trim(),
+            region: regionSelect.value,
+            season: seasonSelect.value,
+            sort: 'name',
+            order: 'asc'
         });
         const response = await fetch(`/api/trips?${params}`);
         if (!response.ok) {
@@ -124,7 +131,23 @@ const hookTripsCatalog = async () => {
         if ([...seasonSelect.options].some(option => option.value === (query.get('season') || 'all'))) {
             seasonSelect.value = query.get('season') || 'all';
         }
+        searchInput.value = query.get('q') || '';
         await loadTrips();
+        regionSelect.addEventListener('change', async () => {
+            currentPage = 1;
+            await loadTrips();
+        });
+        seasonSelect.addEventListener('change', async () => {
+            currentPage = 1;
+            await loadTrips();
+        });
+        searchInput.addEventListener('input', () => {
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(async () => {
+                currentPage = 1;
+                await loadTrips();
+            }, 300);
+        });
         previousButton.addEventListener('click', async () => {
             currentPage -= 1;
             await loadTrips();

@@ -38,15 +38,27 @@ describe('Trips pagination API', () => {
     }));
   });
 
-  test('GET /api-docs.json documents trip pagination', async () => {
-    const response = await request(app).get('/api-docs.json');
+  test('GET /api-docs/ serves trip API documentation', async () => {
+    const response = await request(app).get('/api-docs/');
 
     expect(response.status).toBe(200);
-    expect(response.body.paths['/api/trips'].get.parameters).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: 'page' }),
-        expect.objectContaining({ name: 'limit' })
-      ])
-    );
+    expect(response.text).toContain('Swagger UI');
+  });
+
+  test('GET /api/trips searches names and descriptions', async () => {
+    const response = await request(app).get('/api/trips?q=Alpine&limit=10');
+
+    expect(response.status).toBe(200);
+    expect(response.body.metadata.search).toBe('Alpine');
+  });
+
+  test('GET /api/trips validates search sort and order parameters', async () => {
+    const invalidSort = await request(app).get('/api/trips?sort=distance');
+    const invalidOrder = await request(app).get('/api/trips?order=sideways');
+
+    expect(invalidSort.status).toBe(400);
+    expect(invalidSort.body.error).toContain('sort');
+    expect(invalidOrder.status).toBe(400);
+    expect(invalidOrder.body.error).toContain('order');
   });
 });

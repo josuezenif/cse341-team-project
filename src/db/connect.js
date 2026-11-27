@@ -24,10 +24,15 @@ const connectToDb = async (options = {}) => {
 
 import mongoose from 'mongoose';
 
-const connectToMongoose = async () => {
+const connectToMongoose = async (options = {}) => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: process.env.MONGODB_DB_NAME || 'practice'
+    const connectionString = options.connectionString || process.env.MONGODB_URI;
+    const databaseName = options.databaseName || process.env.MONGODB_DB_NAME || 'practice';
+    if (!connectionString) {
+      throw new Error('MONGODB_URI is required.');
+    }
+    await mongoose.connect(connectionString, {
+      dbName: databaseName
     });
 
     console.log('MongoDB connected successfully!');

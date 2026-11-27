@@ -32,6 +32,18 @@ const router = express.Router();
  *           type: integer
  *           minimum: 1
  *           maximum: 100
+ *         search:
+ *           type: string
+ *         region:
+ *           type: string
+ *         season:
+ *           type: string
+ *         sort:
+ *           type: string
+ *           enum: [name, region, bestSeason]
+ *         order:
+ *           type: string
+ *           enum: [asc, desc]
  *     Trip:
  *       type: object
  *       properties:
@@ -213,6 +225,31 @@ const router = express.Router();
  *           minimum: 1
  *           maximum: 100
  *           default: 10
+ *       - in: query
+ *         name: q
+ *         description: Keyword match in trip names or descriptions
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: region
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: season
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [name, region, bestSeason]
+ *           default: name
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
  *     responses:
  *       200:
  *         description: A paginated list of trips and query metadata
