@@ -65,6 +65,13 @@ export const getTrainsPaginated = async (req, res, next) => {
     const limit = parsePositiveInteger(req.query.limit, 10);
     const sort = req.query.sort || 'name'; // 'name' is default value if no 'sort' value is added
     const order = req.query.order === 'desc' ? -1 : 1; // default order 'desc'
+    const powerSource = req.query.powerSource;
+
+    const filter = {}; // addind filters by power
+
+    if (powerSource) {
+      filter.powerSource = powerSource;
+    }
 
     if (!page || !limit || limit > 50) {
       return res.status(400).json({
@@ -84,7 +91,7 @@ export const getTrainsPaginated = async (req, res, next) => {
     }
 
     const { trains, totalItems } = await getPaginatedTrains({
-      filter: {},
+      filter,
       page,
       limit,
       sort,
